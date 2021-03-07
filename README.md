@@ -4,7 +4,7 @@ Small Java library to move file form one place to another.
 
 Requirement:
 =========
-TO move a file, a json file with the same name must exist.
+To move a file, a json file with the same name must exist.
 This json is to store details about the file who need to be moved.
 By default, the json file must contain following details:
 ```
