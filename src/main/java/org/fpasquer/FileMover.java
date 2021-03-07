@@ -1,10 +1,8 @@
 package org.fpasquer;
 
-import org.fpasquer.file_mover_config.FileMoverConfig;
 import org.fpasquer.file_mover_config.FileMoverConfigImpl;
 import org.fpasquer.file_transfer.FileTransfer;
 import org.fpasquer.file_transfer.FileTransferImpl;
-import org.fpasquer.file_transfer.data.FileTransferData;
 import org.fpasquer.file_transfer.logger.GlobalLogger;
 
 import java.io.IOException;

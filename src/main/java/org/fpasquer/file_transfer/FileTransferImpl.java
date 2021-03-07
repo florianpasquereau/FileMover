@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.fpasquer.file_mover_config.FileMoverConfig;
 import org.fpasquer.file_transfer.adapter.FileTransferDataAdapter;
 import org.fpasquer.file_transfer.data.FileTransferData;
+import org.fpasquer.file_transfer.data.FileTransferDataImpl;
 import org.fpasquer.file_transfer.logger.GlobalLogger;
 import org.fpasquer.file_transfer_runnable.FileTransferRunnable;
 import org.fpasquer.file_transfer_runnable.FileTransferRunnableImpl;
@@ -21,7 +22,7 @@ public class FileTransferImpl implements FileTransfer{
 
     public FileTransferImpl(final FileMoverConfig fileMoverConfig) {
         GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(FileTransferData.class, new FileTransferDataAdapter());
+        builder.registerTypeAdapter(FileTransferDataImpl.class, new FileTransferDataAdapter());
         this.gson = builder.create();
         this.fileMoverConfig = fileMoverConfig;
     }
@@ -31,9 +32,9 @@ public class FileTransferImpl implements FileTransfer{
      * data object must store all detail about the file to transfer.
      * */
     protected FileTransferData convertToData(final Path file) {
-        FileTransferData data;
+        FileTransferDataImpl data;
         try (BufferedReader bufferedReader = new BufferedReader((Files.newBufferedReader(file, StandardCharsets.UTF_8)))) {
-            data = this.gson.fromJson(bufferedReader, FileTransferData.class);
+            data = this.gson.fromJson(bufferedReader, FileTransferDataImpl.class);
             data.setPathIso(file);
         } catch (Exception e) {
             GlobalLogger.log(Level.WARNING, file.getFileName().toString() + " : " + e.getMessage());
