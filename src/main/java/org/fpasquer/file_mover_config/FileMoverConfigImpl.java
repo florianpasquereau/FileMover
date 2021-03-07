@@ -6,8 +6,10 @@ import org.fpasquer.file_transfer.logger.GlobalLogger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
+/**
+ * Store details about the file to transfer
+ * */
 public class FileMoverConfigImpl implements FileMoverConfig{
 
     private final Path sourcePath;
@@ -36,6 +38,7 @@ public class FileMoverConfigImpl implements FileMoverConfig{
         return this.destPath;
     }
 
+    @Override
     public boolean isValid() {
         return valid;
     }

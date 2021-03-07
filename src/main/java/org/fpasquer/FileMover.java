@@ -19,15 +19,14 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class FileMover {
-
     private static void moveFiles(final FileTransfer fileTransfer) {
         ResourceBundle resourceBundle = ResourceBundle.getBundle("Config");
         ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(resourceBundle.getString("NUMBER_THREAD")));
-        if (!fileTransfer.getFileMoverConfig().isValid()) {
+        if (!fileTransfer.isValid()) {
             return ;
         }
         try {
-            Stream<Path> pathStream = Files.list(fileTransfer.getFileMoverConfig().getSourcePath())
+            Stream<Path> pathStream = Files.list(fileTransfer.getSourcePath())
                     .filter((p) -> p.getFileName().toString().endsWith(".json"));
             pathStream.map(fileTransfer::newRunnable)
                 .filter(Objects::nonNull)
@@ -38,7 +37,6 @@ public class FileMover {
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(Integer.parseInt(resourceBundle.getString("NUMBER_MINUTE_MAX_WAIT")), TimeUnit.MINUTES)) {
-
                 executorService.shutdownNow();
             }
         }catch (InterruptedException e){

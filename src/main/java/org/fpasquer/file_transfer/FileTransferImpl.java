@@ -6,14 +6,13 @@ import org.fpasquer.file_mover_config.FileMoverConfig;
 import org.fpasquer.file_transfer.adapter.FileTransferDataAdapter;
 import org.fpasquer.file_transfer.data.FileTransferData;
 import org.fpasquer.file_transfer.logger.GlobalLogger;
+import org.fpasquer.file_transfer_runnable.FileTransferRunnable;
+import org.fpasquer.file_transfer_runnable.FileTransferRunnableImpl;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 
 public class FileTransferImpl implements FileTransfer{
@@ -27,47 +26,10 @@ public class FileTransferImpl implements FileTransfer{
         this.fileMoverConfig = fileMoverConfig;
     }
 
-    public static class FileTransferRunnable implements Runnable{
-
-        protected final FileTransferData data;
-        protected final Path destPath;
-
-        public FileTransferRunnable(final FileTransferData data, final Path destPath) {
-            this.data = data;
-            this.destPath = destPath;
-        }
-
-        protected boolean isValid() {
-            return !(this.data == null);
-        }
-
-        protected Path getDestPathBuild()
-        {
-            return Path.of(this.destPath + File.separator + data.getPathIso().getFileName());
-        }
-
-        @Override
-        public void run() {
-            if (this.isValid()) {
-                GlobalLogger.logInfo("Starting process for file : '" + data.getPathIso().getFileName() + "'");
-                Path dest = this.getDestPathBuild();
-                if (Files.exists(dest)) {
-                    GlobalLogger.logInfo("Updating of : '" + data.getPathIso().getFileName() + "'");
-                }
-                try {
-                    Files.copy(data.getPathIso(), dest,
-                            StandardCopyOption.COPY_ATTRIBUTES,
-                            StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    GlobalLogger.log(Level.SEVERE, e.getMessage());
-                }
-                GlobalLogger.logInfo("Moved file : '" + data.getPathIso().getFileName() + "' successfully");
-            } else {
-                GlobalLogger.logInfo(data.getPathIso().getFileName() + " is not valid");
-            }
-        }
-    }
-
+    /**
+     * Convert Path json file into data object.
+     * data object must store all detail about the file to transfer.
+     * */
     protected FileTransferData convertToData(final Path file) {
         FileTransferData data;
         try (BufferedReader bufferedReader = new BufferedReader((Files.newBufferedReader(file, StandardCharsets.UTF_8)))) {
@@ -81,17 +43,31 @@ public class FileTransferImpl implements FileTransfer{
     }
 
     @Override
-    public Runnable newRunnable(final Path file) {
+    public FileTransferRunnable newRunnable(final Path file) {
         FileTransferData data = this.convertToData(file);
-        return new FileTransferRunnable(data, this.getFileMoverConfig().getDestPath());
+        return new FileTransferRunnableImpl(data, this.fileMoverConfig.getDestPath());
+    }
+
+
+    @Override
+    public Path getSourcePath() {
+        return this.fileMoverConfig.getSourcePath();
     }
 
     @Override
-    public FileMoverConfig getFileMoverConfig() {
-        return this.fileMoverConfig;
+    public Path getDestPath() {
+        return this.fileMoverConfig.getDestPath();
+    }
+
+    @Override
+    public boolean isValid() {
+        return this.fileMoverConfig.isValid();
     }
 
 
+    /**
+     * Add actions to the default behaviour.
+     * */
     protected FileTransferData addInit(FileTransferData data) {
         return data;
     }
